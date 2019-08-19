@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>beetmaker</title>
+  <script type="text/javascript" src="../dist/beetmaker.js"></script>
+</head>
+<body>
+
+  <input type="file" id="fileInput">
+
+  <script type="text/javascript">
+
+    let fileInput = document.getElementById('fileInput')
+    let trackCollection = new beetmaker.TrackCollection()
+
+
+    fileInput.addEventListener('change', function(evt){
+      let file = evt.target.files[0]
+
+      trackCollection.addFromFile(file)
+      console.log(trackCollection)
+    })
+
+  </script>
+
+</body>
+</html>
