@@ -4,15 +4,23 @@
   <meta charset="utf-8">
   <title>beetmaker</title>
   <script type="text/javascript" src="../dist/beetmaker.js"></script>
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+  <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
 </head>
 <body>
 
   <input type="file" id="fileInput">
+  <div class="ct-chart ct-perfect-fourth"></div>
 
   <script type="text/javascript">
 
+    let audioCtx = new AudioContext()
     let fileInput = document.getElementById('fileInput')
-    let trackCollection = new beetmaker.TrackCollection()
+    let trackCollection = new beetmaker.TrackCollection(audioCtx)
+    let kbLayout = 'azertyuiopqsdfghjklmwxcvbn'.split('')
+    let sampleMapping = {}
+    let samples = []
 
 
     fileInput.addEventListener('change', function(evt){
@@ -21,6 +29,64 @@
       trackCollection.addFromFile(file)
       console.log(trackCollection)
     })
+
+
+    trackCollection.on('trackAdded', function(track){
+      console.log(track)
+
+      // example: https://developer.mozilla.org/fr/docs/Web/API/AudioBuffer/getChannelData
+      let channel0 = track._decodedBuffer.getChannelData(0)
+
+      let min = Infinity
+      let max = -Infinity
+      let avg = 0
+      for(let i=0; i<channel0.length; i++){
+        min = Math.min(min, channel0[i])
+        max = Math.max(max, channel0[i])
+        avg += channel0[i]
+      }
+
+      avg /= channel0.length
+
+      console.log(min, max, avg, channel0)
+
+      // let series = Array.from(track._decodedBuffer.getChannelData(0).slice(1000, 2000))
+      //
+      //
+      //
+      //
+      // new Chartist.Line('.ct-chart', {
+      //   series: [
+      //     series
+      //   ]
+      // }, {
+      //   fullWidth: true,
+      // });
+
+      // track.start()
+
+      for(let i=0; i<kbLayout.length; i++){
+        let sample = new beetmaker.Sample(track, audioCtx, {
+          offsetSecond: Math.random() * (track.getDuration() - 5),
+          durationSeconds: Math.random() * 4 + 0.5
+        })
+
+        console.log(kbLayout[i], sample)
+        sampleMapping[kbLayout[i]] = sample
+      }
+    })
+
+
+    document.addEventListener("keydown", event => {
+      if(event.key in sampleMapping){
+        sampleMapping[event.key].start()
+      }
+    });
+
+
+
+
+
 
   </script>
 

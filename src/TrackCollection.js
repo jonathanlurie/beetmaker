@@ -1,8 +1,17 @@
+import EventManager from '@jonathanlurie/eventmanager'
 import Track from './Track'
 
-class TrackCollection {
+
+/**
+ * Event emitted:
+ * - 'trackAdded' with args: track:Track - When a track is just added to the collection
+ *
+ */
+class TrackCollection extends EventManager{
 
   constructor(audioContext=null){
+    super()
+
     if(!audioContext){
       this._audioContext = new AudioContext()
     } else {
@@ -41,6 +50,7 @@ class TrackCollection {
     }
 
     this._collection[name] = new Track(name, decodedAudioBuffer, audioContext)
+    this.emit('trackAdded', [this._collection[name]])
   }
 
 }

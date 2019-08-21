@@ -4,6 +4,9 @@ class Track {
     this._name = name
     this._decodedBuffer = decodedBuffer
     this._audioContext = audioContext
+
+    // source currently being played. Useful for interupting
+    this._playingSource = null
   }
 
   // act as a factory; because sources can only be played once
@@ -17,6 +20,10 @@ class Track {
       source.connect(this._audioContext.destination)
     }
     return source
+  }
+
+  getName(){
+    return this._name
   }
 
 
@@ -35,9 +42,28 @@ class Track {
   }
 
 
-  play(){
-    let source = this.createSource(true)
-    source.start(0, /*offsetSecond, durationSecond*/)
+  start(){
+    let that = this
+
+    // stopping it if already existing
+    if(this._playingSource){
+      this._playingSource.stop()
+    }
+
+    this._playingSource = this.createSource(true)
+
+    // make it become null when it's stoped
+    this._playingSource.onended = function(event) {
+      that._playingSource = null
+    }
+    this._playingSource.start()
+  }
+
+
+  stop(){
+    if(this._playingSource){
+      this._playingSource.stop()
+    }
   }
 
 }
