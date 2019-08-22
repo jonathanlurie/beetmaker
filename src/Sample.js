@@ -5,7 +5,7 @@ import getSupervillain from './Supervillains'
  */
 class Sample {
 
-  constructor(track, audioContext, options){
+  constructor(track, audioContext, options={}){
     this._track = track
     this._audioContext = audioContext
     this._offsetSeconds = 'offsetSecond' in options ? options.offsetSecond : 0

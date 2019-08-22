@@ -27,13 +27,21 @@ class Track {
   }
 
 
+  getPcmData(channel=0){
+    if(channel >= 0 && channel < this._decodedBuffer.numberOfChannels){
+      return this._decodedBuffer.getChannelData(channel)
+    }
+    return null
+  }
+
+
   getDuration(){
     return this._decodedBuffer.duration
   }
 
 
   getNumberOfChannels(){
-    return this._decodedBuffer.numberOfChannels()
+    return this._decodedBuffer.numberOfChannels
   }
 
 
