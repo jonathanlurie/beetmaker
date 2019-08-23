@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>beetmaker</title>
+
+  <style>
+    #soundBt {
+      width: 100px;
+      height: 100px;
+    }
+
+    .recordBt {
+      background: red;
+      border-radius: 100%;
+    }
+
+    .stopBt {
+      background: black;
+    }
+  </style>
+  <script type="text/javascript" src="../dist/beetmaker.js"></script>
+</head>
+<body>
+
+  <div class="ct-chart ct-perfect-fourth"></div>
+
+  <div id="soundBt" class="recordBt"></div>
+
+  <script type="text/javascript">
+
+    let audioCtx = new AudioContext()
+    let micRecorder = new beetmaker.MicRecorder(audioCtx)
+    let kbLayout = 'abcdefghijklmnopqrstuvwxyz'.split('')
+    let sampleMapping = {}
+    let samples = []
+    console.log(micRecorder)
+
+    micRecorder.on('recordingEnded', function(track){
+      let blankSampler = new beetmaker.BlankSampler(track, audioCtx, {pcmThreshold: "auto"})
+      blankSampler.analyse()
+      let samples = blankSampler.createSamples()
+
+      console.log(samples)
+
+      for(let i=0; i<Math.min(samples.length, kbLayout.length); i++){
+        sampleMapping[kbLayout[i]] = samples[i]
+      }
+    })
+
+    //micRecorder.record()
+
+
+    document.addEventListener("keydown", event => {
+      if(event.key in sampleMapping){
+        sampleMapping[event.key].start()
+      }
+    });
+
+
+    let isRecording = false
+    let soundBt = document.getElementById('soundBt')
+    soundBt.addEventListener('mousedown', function(e){
+      if(isRecording){
+        micRecorder.stop()
+        isRecording = false
+        soundBt.classList.remove('stopBt')
+        soundBt.classList.add('recordBt')
+      }else{
+        micRecorder.record()
+        isRecording = true
+
+
+        soundBt.classList.remove('recordBt')
+        soundBt.classList.add('stopBt')
+      }
+    })
+
+
+  </script>
+
+</body>
+</html>
