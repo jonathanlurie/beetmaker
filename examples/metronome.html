@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>beetmaker</title>
+
+  <style>
+    #soundBt {
+      width: 100px;
+      height: 100px;
+    }
+
+    .recordBt {
+      background: red;
+      border-radius: 100%;
+    }
+
+    .stopBt {
+      background: black;
+    }
+  </style>
+  <script type="text/javascript" src="../dist/beetmaker.js"></script>
+</head>
+<body>
+  <div id="soundBt" class="recordBt"></div>
+
+  <script type="text/javascript">
+
+
+    let metronome = new beetmaker.Metronome({
+      bpm: 80,
+      subdivisions: 2
+    })
+
+    metronome.on('start', function(){
+      console.log('START metronome')
+    })
+
+    metronome.on('stop', function(){
+      console.log('STOP metronome')
+    })
+
+    metronome.on('pause', function(){
+      console.log('PAUSE metronome')
+    })
+
+    metronome.on('resume', function(){
+      console.log('RESUME metronome')
+    })
+
+    metronome.on('stop', function(){
+      console.log('STOP metronome')
+    })
+
+
+    metronome.on('beat', function(beatIndex, subdivisionIndex){
+      let display = `[${beatIndex}] ${subdivisionIndex === 0 ? 'BOOM' : (subdivisionIndex+1)}`
+      console.log(display)
+    })
+
+    metronome.start()
+
+  </script>
+
+</body>
+</html>

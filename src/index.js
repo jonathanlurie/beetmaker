@@ -3,11 +3,13 @@ import Track from './Track'
 import Sample from './Sample'
 import BlankSampler from './BlankSampler'
 import MicRecorder from './MicRecorder'
+import Metronome from './Metronome'
 
 export default ({
   TrackCollection,
   Track,
   Sample,
   BlankSampler,
-  MicRecorder
+  MicRecorder,
+  Metronome
 })
