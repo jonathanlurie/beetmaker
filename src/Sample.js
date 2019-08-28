@@ -20,6 +20,11 @@ class Sample {
   }
 
 
+  getName(){
+    return this._name
+  }
+
+
   start(stopPrevious = true){
     if(stopPrevious){
       this.stop()

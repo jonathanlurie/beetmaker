@@ -29,7 +29,7 @@
 
     let metronome = new beetmaker.Metronome({
       bpm: 80,
-      subdivisions: 2
+      subdivisions: 4
     })
 
     metronome.on('start', function(){
@@ -54,7 +54,9 @@
 
 
     metronome.on('beat', function(beatIndex, subdivisionIndex){
-      let display = `[${beatIndex}] ${subdivisionIndex === 0 ? 'BOOM' : (subdivisionIndex+1)}`
+      // let display = `[${beatIndex}] ${subdivisionIndex === 0 ? 'BOOM' : (subdivisionIndex+1)}`
+      let display = `[beatIndex: ${beatIndex}] --- subdivisionIndex: ${subdivisionIndex}`
+      display += subdivisionIndex === 0 ? ' 🥁' : ''
       console.log(display)
     })
 

@@ -15,7 +15,7 @@ class Metronome extends EventManager{
   constructor(options={}){
     super()
     this._bpm = 'bpm' in options ? options.bpm : 80
-    this._subdivisions = 'subdivisions' in options ? options.subdivisions : 2
+    this._subdivisions = 'subdivisions' in options ? options.subdivisions : 4
     this._intervalMs = null
     this._beatIndex = 0
     this._subdivisionIndex = 0
