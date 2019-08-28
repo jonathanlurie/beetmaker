@@ -10,7 +10,7 @@ class Measure {
     this._config = ('config' in options ? '4/4' : options.config)
                       .split('/')
                       .map(n -> parseInt(n))
-    this._beatsPerMeasure = this._config[0] * 4 / this._config[0]
+    this._beatsPerMeasure = this._config[0] * 4 / this._config[1]
     this._subdivisions = 'subdivisions' in options ? options.subdivisions : 4
     this._measureContent = {}
   }
