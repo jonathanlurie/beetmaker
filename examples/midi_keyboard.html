@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>beetmaker</title>
+</head>
+<body>
+
+  <script type="text/javascript">
+
+  navigator.requestMIDIAccess()
+  .then(function(access) {
+    console.log(access)
+
+    // Get lists of available MIDI controllers
+    const inputs = access.inputs.values()
+    const outputs = access.outputs.values()
+
+    let input = inputs.next()
+    while (!input.done) {
+      console.log(input.value)
+
+      let device = input.value
+
+      device.onmidimessage = function (midiMsgEvent) {
+        // some info on how to generate a sound here:
+        // https://www.the-art-of-web.com/javascript/creating-sounds/
+        console.log(midiMsgEvent.data)
+        // data[0] possibilities:
+        // 144 note on
+        // 128 note off
+
+        // generate a freq from a key index:
+        // https://medium.com/swinginc/playing-with-midi-in-javascript-b6999f2913c3
+
+
+        let m = midiMsgEvent.data[1]
+        let f = 2**((m - 69)/12) * 440
+
+        // useful chart:
+        // http://subsynth.sourceforge.net/midinote2freq.html
+        // from this link, we have:
+        let fBis = (440 / 32) * (2 ^ ((m - 9) / 12)) // weird because this does not give the same values as the chart, and the formula above does!
+
+        // nice tut here:
+        // http://teropa.info/blog/2016/08/10/frequency-and-pitch.html
+
+        // change pitch
+        // https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode/detune
+      }
+
+
+      input = inputs.next()
+    }
+
+     // access.onstatechange = function(e) {
+     //  // Print information about the (dis)connected MIDI controller
+     //  console.log(e.port.name, e.port.manufacturer, e.port.state);
+     //
+     //  if(e.port.state === 'connected'){
+     //    inputs.onmidimessage = function (midiMsgEvent) {
+     //      console.log(midiMsgEvent)
+     //    }
+     //  }
+     // }
+  })
+
+
+  </script>
+
+</body>
+</html>

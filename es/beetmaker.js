@@ -871,6 +871,8 @@ class Sample {
     this._audioContext = audioContext;
     this._offsetSeconds = 'offsetSecond' in options ? options.offsetSecond : 0;
     this._durationSeconds = 'durationSeconds' in options ? options.durationSeconds : null;
+    this._detune = 'detune' in options ? options.detune : 0;
+    this._playbackRate = 'playbackRate' in options ? options.playbackRate : 1;
     this._name = 'name' in options ? options.name : `${track.getName()} [${getSupervillain()}]`;
 
     // placeholder to replace the fact that we dont have the sound effects
@@ -892,8 +894,14 @@ class Sample {
     }
 
     this._playingSource = this._track.createSource(false);
+    this._playingSource.detune.value = this._detune;
+    this._playingSource.playbackRate = this._playbackRate;
     this._playingSource.connect(this._audioContext.destination);
-    this._playingSource.start(0, this._offsetSeconds, this._durationSeconds);
+    if(this._durationSeconds > 0){
+      this._playingSource.start(0, this._offsetSeconds, this._durationSeconds);
+    }else{
+      this._playingSource.start(0, this._offsetSeconds);
+    }
   }
 
 
@@ -902,6 +910,14 @@ class Sample {
       this._playingSource.stop(0);
       this._playingSource = null;
     }
+  }
+
+  setDetune(d){
+    this._detune = d;
+  }
+
+  setPlaybackRate(p){
+    this._playbackRate = 1;
   }
 
 
