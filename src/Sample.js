@@ -34,7 +34,7 @@ class Sample {
 
     this._playingSource = this._track.createSource(false)
     this._playingSource.detune.value = this._detune
-    this._playingSource.playbackRate = this._playbackRate
+    // this._playingSource.playbackRate = this._playbackRate
     this._playingSource.connect(this._audioContext.destination)
     if(this._durationSeconds > 0){
       this._playingSource.start(0, this._offsetSeconds, this._durationSeconds)

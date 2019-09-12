@@ -120,6 +120,30 @@ class TrackCollection extends EventManager{
   }
 
 
+  addFromUrl(url, name=null){
+    let effectiveName = name ? name : url.replace(/^.*[\\\/]/, '');
+    let that = this;
+
+    fetch(url)
+    .then(res => {
+      return res.arrayBuffer()
+    })
+    .then(arrrBuff => {
+      that._audioContext.decodeAudioData(arrrBuff,
+
+        // success callback
+        function(decodedAudioBuffer) {
+          that._addTrack(decodedAudioBuffer, effectiveName, that._audioContext);
+        },
+
+        // error callback
+        function(e){
+          console.log("Error with decoding audio data" + e.err);
+        });
+    });
+  }
+
+
   _addTrack(decodedAudioBuffer, name, audioContext){
     if(name in this._collection){
       throw new Error(`A track named ${name} already exists.`)
@@ -895,7 +919,7 @@ class Sample {
 
     this._playingSource = this._track.createSource(false);
     this._playingSource.detune.value = this._detune;
-    this._playingSource.playbackRate = this._playbackRate;
+    // this._playingSource.playbackRate = this._playbackRate
     this._playingSource.connect(this._audioContext.destination);
     if(this._durationSeconds > 0){
       this._playingSource.start(0, this._offsetSeconds, this._durationSeconds);
