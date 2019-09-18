@@ -3,47 +3,57 @@
 <head>
   <meta charset="utf-8">
   <title>beetmaker</title>
+  <style>
+  body {
+    background: #444444;
+    font-size: 3em;
+    font-family: sans-serif;
+    color: #8cff86;
+  }
+
+  .key {
+    text-align: center;
+    background: #d0d0d0;
+    font-family: monospace;
+    padding: 10px 24px;
+    margin: 5px;
+    color: #828282;
+    border: solid 5px #8e8e8e;
+  }
+
+  </style>
   <script type="text/javascript" src="../dist/beetmaker.js"></script>
 
   <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
   <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
 </head>
 <body>
-
   <input type="file" id="fileInput" multiple>
-  <div class="ct-chart ct-perfect-fourth"></div>
+  <div id="info"></div>
 
   <script type="text/javascript">
-
-    let audioCtx = new AudioContext()
     let fileInput = document.getElementById('fileInput')
+    let infoDiv = document.getElementById('info')
+    let audioCtx = new AudioContext()
     let trackCollection = new beetmaker.TrackCollection(audioCtx)
     let kbLayout = 'azertyuiopqsdfghjklmwxcvbn'.split('')
     let sampleMapping = {}
     let samples = []
 
+    let layoutCounter = 0
 
     fileInput.addEventListener('change', function(evt){
-      let file = evt.target.files[0]
-
+      let file = evt.target.files
       trackCollection.addFromFile(file)
-      console.log(trackCollection)
     })
 
+    // trackCollection.addFromUrl(sounds)
 
-    trackCollection.on('trackAdded', function(track){
-      console.log(track)
-
-      // extracking non blank samples from the track
-      let blankSampler = new beetmaker.BlankSampler(track, audioCtx, {pcmThreshold: "auto"})
-      blankSampler.analyse()
-      let samples = blankSampler.createSamples()
-
-      console.log(samples)
-
-      for(let i=0; i<Math.min(samples.length, kbLayout.length); i++){
-        sampleMapping[kbLayout[i]] = samples[i]
-      }
+    trackCollection.on('tracksAdded', function(tracks){
+      tracks.forEach((trk, i) => {
+        sampleMapping[kbLayout[i]] = new beetmaker.Sample(trk, audioCtx)
+        infoDiv.innerHTML += `<div style="display: flex"><div class="key">${kbLayout[i].toUpperCase()}</div> ${trk.getName()}</div>`
+      })
     })
 
 
@@ -52,10 +62,6 @@
         sampleMapping[event.key].start()
       }
     });
-
-
-
-
 
 
   </script>

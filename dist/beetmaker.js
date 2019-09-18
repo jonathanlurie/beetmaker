@@ -200,8 +200,7 @@
 
   /**
    * Event emitted:
-   * - 'trackAdded' with args: track:Track - When a track is just added to the collection
-   *
+   * - 'tracksAdded' with args: tracks: Array of Track - When some track(s) is just added to the collection
    */
   class TrackCollection extends EventManager{
 
@@ -218,49 +217,88 @@
     }
 
 
-    addFromFile(file, name=null){
-      let effectiveName = name ? name : file.name;
+    addFromFile(files){
       let that = this;
-      let fileReader = new FileReader();
 
-      fileReader.onload = function(e){
-        that._audioContext.decodeAudioData(e.target.result,
+      function readFile(file){
+        return new Promise((resolve, reject) => {
+          let fr = new FileReader();
+          fr.onload = () => {
+            resolve(fr.result);
+          };
+          fr.readAsArrayBuffer(file);
+        })
+      }
 
-          // success callback
-          function(decodedAudioBuffer) {
-            that._addTrack(decodedAudioBuffer, effectiveName, that._audioContext);
-          },
+      let fileArray = null;
 
-          // error callback
-          function(e){
-            console.log("Error with decoding audio data" + e.err);
-          });
-      };
-      fileReader.readAsArrayBuffer(file);
+      if(files instanceof File){
+        fileArray = [files];
+      }else{
+        fileArray = [...files].sort((a, b) =>  (a.name > b.name) ? 1 : -1);
+      }
+
+      // let fileArray = [...files].sort((a, b) =>  (a.name > b.name) ? 1 : -1)
+      let names = fileArray.map(f => f.name);
+      let readPromises = fileArray.map(f => readFile(f));
+
+      Promise.all(readPromises)
+      .then(arrBufs => {
+        let decodePromises = arrBufs.map(arrBuf => that._audioContext.decodeAudioData(arrBuf));
+
+        Promise.all(decodePromises)
+        .then(decodedArrBufs => {
+          that._addTracks(decodedArrBufs, names);
+        });
+      });
+
     }
 
 
-    addFromUrl(url, name=null){
-      let effectiveName = name ? name : url.replace(/^.*[\\\/]/, '');
+
+
+    addFromUrl(urls){
+
+      let urlList = null;
+      if(!Array.isArray(urls)){
+        urlList = [urls];
+      } else {
+        urlList = urls;
+      }
+
+      let that = this;
+      let names = urlList.map(url => url.replace(/^.*[\\\/]/, ''));
+
+      let fetchPromises = urlList.map(url => fetch(url).then(y => y.arrayBuffer()));
+      Promise.all(fetchPromises).then(arrBufs => {
+        let decodePromises = arrBufs.map(arrBuf => that._audioContext.decodeAudioData(arrBuf));
+
+        Promise.all(decodePromises)
+        .then(decodedArrBufs => {
+          that._addTracks(decodedArrBufs, names);
+        });
+      });
+    }
+
+
+    _addTracks(decodedAudioBuffers, names){
       let that = this;
 
-      fetch(url)
-      .then(res => {
-        return res.arrayBuffer()
-      })
-      .then(arrrBuff => {
-        that._audioContext.decodeAudioData(arrrBuff,
+      let justAdded = [];
+      decodedAudioBuffers.forEach((dab, i) => {
+        let name = names[i];
 
-          // success callback
-          function(decodedAudioBuffer) {
-            that._addTrack(decodedAudioBuffer, effectiveName, that._audioContext);
-          },
+        if(name in that._collection){
+          //throw new Error(`A track named ${name} already exists.`)
+          // TODO: emit a custom event like 'trackError'
+          return
+        }
 
-          // error callback
-          function(e){
-            console.log("Error with decoding audio data" + e.err);
-          });
+        that._collection[name] = new Track(name, dab, that._audioContext);
+        justAdded.push(that._collection[name]);
       });
+
+      this.emit('tracksAdded', [justAdded]);
     }
 
 
@@ -270,8 +308,11 @@
       }
 
       this._collection[name] = new Track(name, decodedAudioBuffer, audioContext);
-      this.emit('trackAdded', [this._collection[name]]);
+      this.emit('tracksAdded', [this._collection[name]]);
     }
+
+
+
 
   }
 
