@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>beetmaker</title>
+  <style>
+  body {
+    background: #444444;
+    font-size: 1em;
+    font-family: sans-serif;
+    color: #8cff86;
+  }
+
+  button, input {
+    font-size: 1em;
+  }
+
+  </style>
+  <script type="text/javascript" src="../dist/beetmaker.js"></script>
+</head>
+<body>
+  <div id="info" style="display:none;">
+    <p><button id="control">Play</button></p>
+    <p>BPM <input type="number" id="bpmPicker" min="1" max="500" value="80"></p>
+  </div>
+
+  <script type="text/javascript">
+    let infoDiv = document.getElementById('info')
+    let controlBt = document.getElementById('control')
+    let bpmPicker = document.getElementById('bpmPicker')
+    let audioCtx = new AudioContext()
+    let trackCollection = new beetmaker.TrackCollection(audioCtx)
+    let metronome = null
+
+    let layoutCounter = 0
+
+    let sounds = [
+      'sounds/drum/Clap.ogg',
+      'sounds/drum/ClosedHat.ogg',
+      'sounds/drum/Kick.ogg',
+      'sounds/drum/OpenHat.ogg'
+    ]
+
+
+
+    trackCollection.addFromUrl(sounds)
+
+    trackCollection.on('tracksAdded', function(tracks){
+      // making samples out of tracks
+      let samples = tracks.map(trk => new beetmaker.Sample(trk, audioCtx))
+      let clap = samples[0]
+      let closedHat = samples[1]
+      let kick = samples[2]
+      let openHat = samples[3]
+
+      // Let's create the metronome (default is 80BPM with 4 subdivisions per beat)
+      metronome = new beetmaker.Metronome()
+
+      // add some visual hint on the metronome
+      metronome.on('beat', function(beatIndex, subdivisionIndex){
+        let display = `[beatIndex: ${beatIndex}] --- subdivisionIndex: ${subdivisionIndex}`
+        display += subdivisionIndex === 0 ? ' 🥁' : ''
+        console.log(display)
+      })
+
+      // Let`s build a MultiMeasure and position some samples inthere
+      // we can train here:
+      // https://learningmusic.ableton.com/make-beats/make-beats.html
+      let mm = new beetmaker.MultiMeasure({looping: true})
+
+      // open hats
+      mm.addSample(openHat, 0, 0)
+      mm.addSample(openHat, 1, 0)
+      mm.addSample(openHat, 2, 0)
+      mm.addSample(openHat, 3, 0)
+
+      // closed hats
+      mm.addSample(closedHat, 0, 2)
+
+      // clap
+      mm.addSample(clap, 1, 2)
+      mm.addSample(clap, 2, 0)
+      mm.addSample(clap, 3, 2)
+
+      // kick
+      mm.addSample(kick, 0, 2)
+      mm.addSample(kick, 1, 2)
+      mm.addSample(kick, 2, 2)
+      mm.addSample(kick, 3, 1)
+      mm.addSample(kick, 2, 2)
+
+      // Let's create MultiMeasurePlayer. It needs the metronome instance for scheduling
+      // the multimeasures it's going to play
+      let mmPlayer = new beetmaker.MultiMeasurePlayer(metronome)
+
+      // add the multimeasure mm to be played starting at the fifth beat
+      mmPlayer.addMultimeasure(mm, {
+        startBeatIndex: 0
+      })
+
+
+      // display the controls
+      infoDiv.style.display = "inherit"
+
+      // start the metronome
+      // metronome.start()
+    })
+
+
+    controlBt.addEventListener('click', (evt) => {
+
+      if(metronome.isStarted()){
+        // we stop it
+        metronome.stop()
+        controlBt.innerText = "start"
+      } else {
+        metronome.start()
+        controlBt.innerText = "stop"
+      }
+    })
+
+
+
+    bpmPicker.addEventListener('change', evt => {
+      if(metronome.isStarted()){
+        metronome.setBpm(parseInt(bpmPicker.value))
+        metronome.start()
+      } else {
+        metronome.setBpm(parseInt(bpmPicker.value))
+      }
+    })
+
+  </script>
+
+</body>
+</html>

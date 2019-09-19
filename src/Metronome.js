@@ -27,6 +27,14 @@ class Metronome extends EventManager{
   }
 
 
+  isStarted(){
+    return this._isStarted
+  }
+
+  isPaused(){
+    return this._isPaused
+  }
+
   /**
    * @private
    * Updates the interval in millisec between two contiguous beat subdivisions
@@ -78,9 +86,11 @@ class Metronome extends EventManager{
       return
     }
 
+
     this._beatIndex = 0
     this._subdivisionIndex = 0
     this._isStarted = false
+    this._isPaused = false
     this.emit('stop')
     clearInterval(this._intervalId)
   }

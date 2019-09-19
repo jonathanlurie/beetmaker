@@ -23,9 +23,6 @@
 
   </style>
   <script type="text/javascript" src="../dist/beetmaker.js"></script>
-
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
-  <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
 </head>
 <body>
   <input type="file" id="fileInput" multiple>
@@ -58,6 +55,7 @@
 
 
     document.addEventListener("keydown", event => {
+      console.log(event)
       if(event.key in sampleMapping){
         sampleMapping[event.key].start()
       }

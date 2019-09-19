@@ -21,9 +21,15 @@ class TrackCollection extends EventManager{
   }
 
 
+  /**
+   * Add one or multiple files
+   * @param {File|FileList} files - some file(s)
+   */
   addFromFile(files){
     let that = this
 
+    // turn the async - callback based - file reader into a promise, in order to
+    // use it with Promise.all and keep the order of stuff
     function readFile(file){
       return new Promise((resolve, reject) => {
         let fr = new FileReader()
@@ -42,7 +48,6 @@ class TrackCollection extends EventManager{
       fileArray = [...files].sort((a, b) =>  (a.name > b.name) ? 1 : -1)
     }
 
-    // let fileArray = [...files].sort((a, b) =>  (a.name > b.name) ? 1 : -1)
     let names = fileArray.map(f => f.name)
     let readPromises = fileArray.map(f => readFile(f))
 
@@ -60,7 +65,10 @@ class TrackCollection extends EventManager{
 
 
 
-
+  /**
+   * Add sound file from one or more urls
+   * @param {string|Array} urls - the urls the sound files
+   */
   addFromUrl(urls){
 
     let urlList = null
@@ -104,17 +112,6 @@ class TrackCollection extends EventManager{
 
     this.emit('tracksAdded', [justAdded])
   }
-
-
-  _addTrack(decodedAudioBuffer, name, audioContext){
-    if(name in this._collection){
-      throw new Error(`A track named ${name} already exists.`)
-    }
-
-    this._collection[name] = new Track(name, decodedAudioBuffer, audioContext)
-    this.emit('tracksAdded', [this._collection[name]])
-  }
-
 
 
 

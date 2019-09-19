@@ -4,6 +4,8 @@ import Sample from './Sample'
 import BlankSampler from './BlankSampler'
 import MicRecorder from './MicRecorder'
 import Metronome from './Metronome'
+import MultiMeasure from './MultiMeasure'
+import MultiMeasurePlayer from './MultiMeasurePlayer'
 
 export default ({
   TrackCollection,
@@ -11,5 +13,7 @@ export default ({
   Sample,
   BlankSampler,
   MicRecorder,
-  Metronome
+  Metronome,
+  MultiMeasure,
+  MultiMeasurePlayer
 })

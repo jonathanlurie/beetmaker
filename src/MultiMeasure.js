@@ -7,9 +7,9 @@ class MultiMeasure {
    *
    */
   constructor(options={}){
-    this._config = ('config' in options ? '4/4' : options.config)
+    this._config = ('config' in options ? options.config : '4/4' )
                       .split('/')
-                      .map(n -> parseInt(n))
+                      .map(n => parseInt(n))
     this._beatsPerMeasure = this._config[0] * 4 / this._config[1]
     this._subdivisions = 'subdivisions' in options ? options.subdivisions : 4
     this._looping = 'looping' in options ? options.looping : false
@@ -29,10 +29,14 @@ class MultiMeasure {
 
 
   addSample(sample, beatIndex, subdivisionIndex){
+    // if there is nothing at this beat index yet, we add room for some
+    // subdivision slots
     if(!(beatIndex in this._content)){
-      this._content[beatIndex]
+      this._content[beatIndex] = {}
     }
 
+    // if the given subdivision at this given beat does not exist yet,
+    // we add it (empty)
     if(!(subdivisionIndex in this._content[beatIndex])){
       this._content[beatIndex][subdivisionIndex] = {}
     }
@@ -71,7 +75,7 @@ class MultiMeasure {
    */
   _updateLastBeatIndex(){
     let lastBeatSlotTaken = Math.max(...Object.keys(this._content))
-    this._lastBeatIndex = Math.ceil(lastBeatSlotTaken/this._beatsPerMeasure) * this._beatsPerMeasure - 1
+    this._lastBeatIndex = Math.ceil((lastBeatSlotTaken+1)/this._beatsPerMeasure) * this._beatsPerMeasure - 1
   }
 
 
@@ -94,6 +98,7 @@ class MultiMeasure {
           let sampleNames = Object.keys(samples)
 
           for(let i=0; i<sampleNames.length; i++){
+            console.log(samples[sampleNames[i]].getName());
             samples[sampleNames[i]].start()
           }
         }
