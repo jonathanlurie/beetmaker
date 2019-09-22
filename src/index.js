@@ -6,6 +6,7 @@ import MicRecorder from './MicRecorder'
 import Metronome from './Metronome'
 import MultiMeasure from './MultiMeasure'
 import MultiMeasurePlayer from './MultiMeasurePlayer'
+import LiveScheduler from './LiveScheduler'
 
 export default ({
   TrackCollection,
@@ -15,5 +16,6 @@ export default ({
   MicRecorder,
   Metronome,
   MultiMeasure,
-  MultiMeasurePlayer
+  MultiMeasurePlayer,
+  LiveScheduler
 })

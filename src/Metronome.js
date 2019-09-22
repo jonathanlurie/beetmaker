@@ -44,6 +44,11 @@ class Metronome extends EventManager{
   }
 
 
+  getSubdivisionIntervalMs(){
+    return this._intervalMs
+  }
+
+
   setBpm(bpm){
     this.stop()
     this._bpm = bpm
@@ -58,6 +63,11 @@ class Metronome extends EventManager{
   }
 
 
+  getSubdivisions(){
+    return this._subdivisions
+  }
+
+
   start(){
     if(this._isStarted && !this._isPaused){
       console.log('This metronome has already started.')
@@ -69,7 +79,7 @@ class Metronome extends EventManager{
 
     this.emit('start')
     this._intervalId = setInterval(function(){
-      that.emit('beat', [that._beatIndex, that._subdivisionIndex])
+      that.emit('beat', [that._beatIndex, that._subdivisionIndex, that._subdivisions])
 
       // update the counters
       that._subdivisionIndex = (that._subdivisionIndex + 1) % that._subdivisions
