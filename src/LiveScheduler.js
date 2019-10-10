@@ -13,8 +13,7 @@ class LiveScheduler {
     this._lastBeatSubdivTimestampMs = Date.now()
     this._intervalEpsylon = 0.1
     this._lastBeatSubdivIndex = 0
-    this.sampleStack = []
-
+    this._sampleStack = {}
 
     // by default mapped on the smallest subdivision of the metronome
     this._beatFrequency = 'beatFrequency' in options ? options.beatFrequency : (1 / metronome.getSubdivisions())
@@ -26,9 +25,11 @@ class LiveScheduler {
     this._lastBeatSubdivTimestampMs = Date.now()
     this._lastBeatSubdivIndex = subdivIndex
 
-    // if(this.sampleStack.length === 0){
-    //   return
-    // }
+    let samplesNames = Object.keys(this._sampleStack)
+
+    if(samplesNames.length === 0){
+      return
+    }
 
     let playScore = (subdivIndex / subdivTotal) % this._beatFrequency
     console.log(playScore);
@@ -37,10 +38,13 @@ class LiveScheduler {
       return
     }
 
+    let sampleStackArray = samplesNames.map(k => this._sampleStack[k])
+    this._sampleStack = {}
     // console.log('BOOM')
-    while(this.sampleStack.length){
-      this.sampleStack.pop().start()
+    while(sampleStackArray.length){
+      sampleStackArray.pop().start()
     }
+
   }
 
 
@@ -80,9 +84,13 @@ class LiveScheduler {
       s.start()
       console.log('OFFBEAT')
     }else{
-      // console.log(correctSubdiv, onTime);
-      this.sampleStack.push(s)
-      // console.log('BEAT');
+      // we don't want to add the same sample twice, so we identify it by its name
+      // (honestly, nothing prevents 2 samples to be the same but with a different name
+      // but that's not an issue)
+      let name = s.getName()
+      if(!(name in this._sampleStack)){
+        this._sampleStack[name] = s
+      }
     }
   }
 

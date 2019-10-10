@@ -8,6 +8,7 @@ class Sample {
   constructor(track, audioContext, options={}){
     this._track = track
     this._audioContext = audioContext
+    this._gainNode = this._audioContext.createGain()
     this._offsetSeconds = 'offsetSecond' in options ? options.offsetSecond : 0
     this._durationSeconds = 'durationSeconds' in options ? options.durationSeconds : null
     this._detune = 'detune' in options ? options.detune : 0
@@ -35,7 +36,11 @@ class Sample {
     this._playingSource = this._track.createSource(false)
     this._playingSource.detune.value = this._detune
     // this._playingSource.playbackRate = this._playbackRate
-    this._playingSource.connect(this._audioContext.destination)
+
+    this._playingSource.connect(this._gainNode)
+    this._gainNode.connect(this._audioContext.destination)
+
+
     if(this._durationSeconds > 0){
       this._playingSource.start(0, this._offsetSeconds, this._durationSeconds)
     }else{
@@ -43,6 +48,10 @@ class Sample {
     }
   }
 
+
+  setVolume(v){
+    this._gainNode.gain.setValueAtTime(v, this._audioContext.currentTime);
+  }
 
   stop(){
     if(this._playingSource){

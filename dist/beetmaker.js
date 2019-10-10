@@ -118,7 +118,6 @@
     }
 
   }
-  //# sourceMappingURL=eventmanager.js.map
 
   class Track {
 
@@ -1051,6 +1050,7 @@
     constructor(track, audioContext, options={}){
       this._track = track;
       this._audioContext = audioContext;
+      this._gainNode = this._audioContext.createGain();
       this._offsetSeconds = 'offsetSecond' in options ? options.offsetSecond : 0;
       this._durationSeconds = 'durationSeconds' in options ? options.durationSeconds : null;
       this._detune = 'detune' in options ? options.detune : 0;
@@ -1078,7 +1078,11 @@
       this._playingSource = this._track.createSource(false);
       this._playingSource.detune.value = this._detune;
       // this._playingSource.playbackRate = this._playbackRate
-      this._playingSource.connect(this._audioContext.destination);
+
+      this._playingSource.connect(this._gainNode);
+      this._gainNode.connect(this._audioContext.destination);
+
+
       if(this._durationSeconds > 0){
         this._playingSource.start(0, this._offsetSeconds, this._durationSeconds);
       }else{
@@ -1086,6 +1090,10 @@
       }
     }
 
+
+    setVolume(v){
+      this._gainNode.gain.setValueAtTime(v, this._audioContext.currentTime);
+    }
 
     stop(){
       if(this._playingSource){
@@ -1609,8 +1617,7 @@
       this._lastBeatSubdivTimestampMs = Date.now();
       this._intervalEpsylon = 0.1;
       this._lastBeatSubdivIndex = 0;
-      this.sampleStack = [];
-
+      this._sampleStack = {};
 
       // by default mapped on the smallest subdivision of the metronome
       this._beatFrequency = 'beatFrequency' in options ? options.beatFrequency : (1 / metronome.getSubdivisions());
@@ -1622,9 +1629,11 @@
       this._lastBeatSubdivTimestampMs = Date.now();
       this._lastBeatSubdivIndex = subdivIndex;
 
-      // if(this.sampleStack.length === 0){
-      //   return
-      // }
+      let samplesNames = Object.keys(this._sampleStack);
+
+      if(samplesNames.length === 0){
+        return
+      }
 
       let playScore = (subdivIndex / subdivTotal) % this._beatFrequency;
       console.log(playScore);
@@ -1633,10 +1642,13 @@
         return
       }
 
+      let sampleStackArray = samplesNames.map(k => this._sampleStack[k]);
+      this._sampleStack = {};
       // console.log('BOOM')
-      while(this.sampleStack.length){
-        this.sampleStack.pop().start();
+      while(sampleStackArray.length){
+        sampleStackArray.pop().start();
       }
+
     }
 
 
@@ -1676,9 +1688,13 @@
         s.start();
         console.log('OFFBEAT');
       }else{
-        // console.log(correctSubdiv, onTime);
-        this.sampleStack.push(s);
-        // console.log('BEAT');
+        // we don't want to add the same sample twice, so we identify it by its name
+        // (honestly, nothing prevents 2 samples to be the same but with a different name
+        // but that's not an issue)
+        let name = s.getName();
+        if(!(name in this._sampleStack)){
+          this._sampleStack[name] = s;
+        }
       }
     }
 

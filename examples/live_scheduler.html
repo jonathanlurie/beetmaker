@@ -32,7 +32,7 @@
     let audioCtx = new AudioContext()
     let trackCollection = new beetmaker.TrackCollection(audioCtx)
     let metronome = new beetmaker.Metronome({
-      bbp: 60
+      bpm: 90
     })
     let liveScheduler = new beetmaker.LiveScheduler(metronome, {
       beatFrequency: 1/4
@@ -47,7 +47,9 @@
       'sounds/drum/Clap.ogg',
       'sounds/drum/ClosedHat.ogg',
       'sounds/drum/Kick.ogg',
-      'sounds/drum/OpenHat.ogg'
+      'sounds/drum/OpenHat.ogg',
+      'sounds/drum/metal_drum_impact_09.mp3',
+      'sounds/drum/ROB_Snare_021.mp3'
     ]
 
     trackCollection.addFromUrl(sounds)
