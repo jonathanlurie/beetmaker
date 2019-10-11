@@ -938,6 +938,8 @@ class Sample {
     this._playbackRate = 'playbackRate' in options ? options.playbackRate : 1;
     this._name = 'name' in options ? options.name : `${track.getName()} [${getSupervillain()}]`;
 
+    this._volume = 1;
+
     // placeholder to replace the fact that we dont have the sound effects
     this._hasFilters = false;
 
@@ -956,6 +958,12 @@ class Sample {
       this.stop();
     }
 
+    // remove the fading, so that it does not apply on the replayed sample
+    this._gainNode.gain.cancelScheduledValues(this._audioContext.currentTime);
+
+    // reset the volume so that it does not stay stuck to where the fading out left it
+    this._gainNode.gain.setValueAtTime(this._volume, this._audioContext.currentTime);
+
     this._playingSource = this._track.createSource(false);
     this._playingSource.detune.value = this._detune;
     // this._playingSource.playbackRate = this._playbackRate
@@ -973,6 +981,7 @@ class Sample {
 
 
   setVolume(v){
+    this._volume = v;
     this._gainNode.gain.setValueAtTime(v, this._audioContext.currentTime);
   }
 
@@ -992,6 +1001,13 @@ class Sample {
   }
 
 
+  fadeOutLinear(durationSec){
+    this._gainNode.gain.linearRampToValueAtTime(0, this._audioContext.currentTime + durationSec);
+  }
+
+  fadeOutExp(durationSec){
+    this._gainNode.gain.exponentialRampToValueAtTime(0.05, this._audioContext.currentTime + durationSec);
+  }
 
 }
 
